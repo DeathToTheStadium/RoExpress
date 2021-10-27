@@ -1,2 +1,2 @@
 # RoExpress
-An remote Based api the Uses expressjs like Framework to handle remotes
+An remote Based api that Uses expressjs as the foundation of a remote networking
