@@ -1,113 +1,148 @@
-local Promises
-local app
-local 
-Promises = require(script.Parent.Parent._index['@1.00'].Promise)
+local appServer,props,methods = {},{},{}
+local Promise = require(script.Parent.Parent.utility.Promise)
+local MainModule = script.Parent.Parent
+local ReadExplorer = {
+	workspace = workspace:GetDescendants(),
+	replicated = game:GetService("ReplicatedStorage"):GetDescendants()
+}
 
-app = {}
-_G['ports'] = {}
-local services,portFolder,utility,remote,data,Exist
+props.ports = {}
+props.layers = {}
+--Instantiates Remote Port
 
-Exist = script.Parent.Parent:FindFirstChild('services')
-if Exist == nil then
-	services = Instance.new('Folder',script.Parent.Parent)
-	services.Name = 'services'
-	portFolder = Instance.new('Folder', services)
-	portFolder.Name = 'ports'
-	utility = Instance.new('Folder',services)
-	utility.Name = "utility"
-	remote = Instance.new('Folder',utility)
-	remote.Name = "remote"
-	data = Instance.new('Folder',utility)
-	data.Name = "data"
-	updater = Instance.new('RemoteFunction',remote)
-	updater.Name = "updater"
-	
-	isListening = Instance.new('BoolValue',data)
-	isListening.Name = 'IsListening'
-	isListening.Value = false
-else
-	services = Exist
-	portFolder = services.ports
-	utility = services.utility
-	remote = utility.remote
-	data = utility.data
-	updater =  remote.updater
-	isListening = data.IsListening
-end
-
-function app.setRemote(port)
+methods.setRemote = function(port)
 	local remote
-	return Promises.new(function(Resolve,Reject,OnCancel)
-		if type(port) ~= 'number' then
-			Reject('port Must Be A number')
-		end
-		if _G.ports[port] == nil then
-			remote = Instance.new('RemoteEvent',portFolder)
-			remote.Name = port
-			_G.ports[port] = {
-				routes = {},
-				remote = remote
+	return Promise.async(function(Resolve,Reject)
+		assert(type(port) == 'number',error('port must be a number'))
+		local Is = (props[ports][port] == nil)
+		if Is then
+			remote = Instance.new("RemoteEvent",MainModule.servicer.ports)
+			props['ports'][port] = {
+				remote = remote,
+				subPorts = {} 
 			}
-			Resolve(_G.ports[port])
+			Resolve()
 		else
-			Reject('Can Not Spawn Duplicate Ports')
+			Reject('Can Not Create duplicate Remotes')
 		end
 	end)
 end
 
-function app.get(port,route,callback)
-	return Promises.new(function(Resolve,Reject,OnCancel)
-		if _G.ports[port].routes[route] == nil then
-			if typeof(callback) == 'function' then
-				_G.ports[port].routes[route] = callback
-				Resolve(_G.ports[port])
-			else
-				Reject('callback must be a function')
-			end
-		else
-			Reject('Can Only Call same Route For One function')
-		end
-		
-	end)
-end
+-- Gets a remote Port or an external remote and Returns it 
 
-function app.send(port,connObject)
-	return Promises.new(function(Resolve)
-		_G.ports[port].remote:FireClient(connObject.client,connObject.data)
-		if connObject.desciption ~= nil then
-			Resolve(connObject.desciption)
-		else
-			Resolve('sent Data')
-		end
-	end)
-end
-
-function app.listen()
-	return Promises.new(function(Resolve,Reject,OnCancel)
-		for portNum,port in pairs(_G.ports) do
-			port.remote.OnServerEvent:Connect(function(player,data)
-				-- Add Check For Cookies
-				print(player)
-				if port.routes[data.route] then
-					port.routes[data.route](data.data)
+--pass in a port or a name
+methods.getRemote = function(name)
+	local remotes = {}
+	local lookFor = function(IsAFilter,tab,name)
+		for index,value in pairs(tab) do
+			if typeof(value) =='table' then
+				lookFor(IsAFilter,value,name)
+			elseif typeof(value) == 'Instance' then
+				if value:IsA(IsAFilter) then
+					remotes[Value.name] = value
 				end
-			end)	
-		end
-		if isListening.Value == false then
-			isListening.Value = true
-			isListening.Changed:Connect(function(value)
-				value = true
-			end)
-			updater.OnServerInvoke = function(player)
-				local update = {}
-				for portNum,port in pairs(_G.ports) do
-					update[portNum] = port.remote
-				end
-				return update
 			end
 		end
-		Resolve(_G.ports)
+		return remotes[name]
+	end
+	local Isport = (type(name) == 'number')
+	return Promise.async(function(Resolve,Reject)
+		if Isport == true then
+			local ports = MainModule.servicer.ports:GetChildren()
+			for _,remote in pairs(ports) do
+				if remote:IsA('RemoteEvent') and remote.Name == name then
+					Resolve(remote)
+					break
+				end
+			end
+		else
+			Resolve(lookFor('RemoteEvent',ReadExplorer,name))
+		end	
 	end)
 end
 
-return app
+
+methods.setbind = function(bindingObject)
+	local remote,Is
+	Is = (props['ports'][bindingObject.port] == nil)
+	return Promise.async(function(Resolve,Reject)
+		if Is ~= nil then
+			remote = Instance.new('RemoteFunction',props['ports'][bindingObject.port].remote)
+			remote.Name = bindingObject.name
+			props['ports'][bindingObject.port].subports[remote.Name] = {
+				event = remote,
+				callBack = bindingObject.callBack
+			}
+			resolve()
+		end
+	end)
+end
+
+methods.setbind({
+	name = 'string',
+	port = remotePort, -- Parents your remoteFunctions to this 
+	callback = function(req,res)
+	end
+})
+
+
+methods.get = function(port,route)
+	return Promise.new(function(Resolve,Reject)
+		-- will work on this tomorow 
+	end)
+end
+
+methods.post = function()
+	
+end
+
+methods.put = function()
+
+end
+
+methods.delete = function()
+
+end
+
+methods.sanity = function()
+	
+end
+
+methods.send = function(port)
+	
+end
+
+methods.sendAll = function(port)
+	
+end
+
+methods.setSignal = function()
+
+end
+
+methods.getSignal = function()
+
+end
+
+methods.enable = function()
+end
+
+methods.use = function()
+
+end
+
+methods.listen = function()
+
+end
+
+return setmetatable(appServer,{
+	__index = function(tab,key)
+		local method = methods[key]
+		if method ~= nil then
+			return method
+		else
+			error("["..key:upper().."]".. "is not a indexable method")
+		end
+	end
+})
+
