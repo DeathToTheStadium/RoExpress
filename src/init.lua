@@ -20,7 +20,10 @@ setmetatable(express,{
 			CreateServicer()
 			return require(script.application.appServer)
 		elseif runservice:IsClient() then
-			script.application.appServer:Destroy()
+			local appserver = script.application:FindFirstChild('appServer')
+			if appserver then
+				appserver:Destroy()
+			end
 			return require(script.application.appClient)
 		end
 	end,
