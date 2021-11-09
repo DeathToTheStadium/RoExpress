@@ -1,5 +1,5 @@
 local appServer,props,methods,mainModule = {},{},{},script.Parent.Parent
-local promise = require(script.Parent.Parent.utility.Promise)
+local promise,request,response = require(mainModule.utility.Promise),require(mainModule.request),require(mainModule.response)
 
 -- props to 
 props.ports = {
@@ -8,28 +8,28 @@ props.ports = {
 		[--[[ bindings]] 3 ] = '';
 		[--[[ routes]] 4 ] = {
 			['get'] = {
-				["remote://myroute/route/:id"] = "callback",
-				["remote://myroute/router/:id"] = "callback",
-				["remote://myroute/routes/:id"] = "callback",
-				["remote://myroute/routed/:id"] = "callback",	
+				["remote://route1"] = "callback",
+				["remote://route2"] = "callback",
+				["remote://route3"] = "callback",
+				["remote://route4"] = "callback",	
 			},
 			['post'] = {
-				["remote://myroute/route/:id"] = "callback",
-				["remote://myroute/router/:id"] = "callback",
-				["remote://myroute/routes/:id"] = "callback",
-				["remote://myroute/routed/:id"] = "callback",	
+				["remote://route1"] = "callback",
+				["remote://route2"] = "callback",
+				["remote://route3"] = "callback",
+				["remote://route4"] = "callback",	
 			},
 			['put'] = {
-				["remote://myroute/route/:id"] = "callback",
-				["remote://myroute/router/:id"] = "callback",
-				["remote://myroute/routes/:id"] = "callback",
-				["remote://myroute/routed/:id"] = "callback",	
+				["remote://route1"] = "callback",
+				["remote://route2"] = "callback",
+				["remote://route3"] = "callback",
+				["remote://route4"] = "callback",	
 			},
 			['delete'] = {
-				["remote://myroute/route/:id"] = "callback",
-				["remote://myroute/router/:id"] = "callback",
-				["remote://myroute/routes/:id"] = "callback",
-				["remote://myroute/routed/:id"] = "callback",	
+				["remote://route1"] = "callback",
+				["remote://route2"] = "callback",
+				["remote://route3"] = "callback",
+				["remote://route4"] = "callback",	
 			}
 		};
 	}
@@ -191,6 +191,7 @@ methods.sendAll = function(port,data)
 	end)
 end
 
+-- Bindable Events
 methods.setSignal = function()
 	return promise.new(function(Resolve,Reject)
 		-- will work on this tomorow 
