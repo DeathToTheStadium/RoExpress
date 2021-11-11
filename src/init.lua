@@ -24,7 +24,7 @@ setmetatable(express,{
 			if appserver then
 				appserver:Destroy()
 			end
-			return require(script.application.appClient)()
+			return require(script.application.appClient)
 		end
 	end,
 })

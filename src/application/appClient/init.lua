@@ -1,24 +1,42 @@
-local appClient,props,methods = {},{},{}
-local Promise = require(script.Parent.Parent.utility.Promise)
+local appClient,props,methods,mainModule = {},{},{},script.Parent.Parent;
+local promise, request, response = require(mainModule.utility.Promise), require(mainModule.request),require(mainModule.response)
 
-props.ports ={}
+props.ports = {}
 
 methods.action = function()
 	
 end
 
 methods.request = function()
-
+	local function get(port,dataObject)
+		-- body
+	end 
+	local function post()
+		-- body
+	end 
+	local function put()
+		-- body
+	end 
+	local function delete()
+		-- body
+	end 
+	
+	return setmetatable({get = get,post = post,put = put,delete = delete},{
+		__call = function()
+			--This Is Call To Let You Specify a Table
+		end
+	})
 end
 
 methods.getbind = function()
 
 end
 
-methods.init = function()
-
+methods.sync = function()
+	
 end
 
+methods.sync()
 
 return setmetatable(appClient,{
 	__index = function(tab,key)
