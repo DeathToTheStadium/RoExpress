@@ -1,6 +1,6 @@
 local appServer, props, methods, mainModule = {}, {}, {}, script.Parent.Parent;
 local promise, request, response = require(mainModule.utility.Promise), require(mainModule.request),require(mainModule.response)
-
+local helper = require(mainModule.utility.helpers)
 -- props to 
 props.ports = {
     [ --[[ Port]] 1] = {
@@ -8,8 +8,11 @@ props.ports = {
         [ 'bindings'] = {
 			['sync'] = {
 				['bind'] = Instance.new("RemoteFunction"),
-				['callback'] = function()
-
+				['callback'] = function(player)
+                    return helper.DeepDeleteIndex(props.ports,{
+                        'callback',
+                        'routes',
+                    })
 				end
 			}
 		}, --[[ bindings]] 
@@ -89,13 +92,12 @@ end
 
 -- returns an Actual remote Object to Allow Custom WorkArounds
 methods.getRemote = function(port)
-    return promise.new(function(Resolve, Reject)
-        if props.ports[port] then
-            Resolve(props.ports[port].remote)
-        else
-            Reject('getRemote error: Remote Does Not Exist ')
-        end
-    end)
+    if props.ports[port] then
+        return props.ports[port].remote
+    else
+        warn('getRemote error: Remote Does Not Exist')
+    end
+    return nil;
 end
 
 -- Passes in a binding object which has a port reference

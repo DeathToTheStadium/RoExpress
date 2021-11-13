@@ -38,13 +38,12 @@ methods.sending = function(options)
     if IsCookie then
         req.header.cookie = options.cookie
     end
-
+    req.body = options.body
     return HTTP:JSONEncode(req)
 end
 
 methods.received = function(player,requestObject,ports)
     requestObject = HTTP:JSONDecode(requestObject)
-    print(requestObject)
     local req = {}
     req.url = requestObject.requestline.url
     req.port = requestObject.requestline.port
@@ -53,6 +52,7 @@ methods.received = function(player,requestObject,ports)
     req.contentType = requestObject.header.contentType
     req.cookie = requestObject.header.cookie
     req.params = {}
+    req.body = requestObject.body
     print(req)
     return req
 end
